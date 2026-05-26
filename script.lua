@@ -1,8 +1,8 @@
 --// SECRET FINDER MOBILE FINAL
---// UNIVERSAL SECRET DETECTOR
+--// ADVANCED SECRET DETECTOR
 --// AUTO SERVER HOP
---// PERMANENT SERVER BLACKLIST
---// AUTO EXECUTE AFTER TELEPORT
+--// SERVER BLACKLIST
+--// AUTO EXECUTE
 --// MOBILE COMPACT UI
 
 if getgenv().SecretFinderLoaded then
@@ -12,24 +12,27 @@ getgenv().SecretFinderLoaded = true
 
 --// AUTO EXECUTE AFTER TELEPORT
 
-if queue_on_teleport then
+local LOADSTRING =
+'loadstring(game:HttpGet("https://raw.githubusercontent.com/jesusvc194-jpg/S2/refs/heads/main/script.lua"))()'
 
-	queue_on_teleport([[
-		loadstring(game:HttpGet("https://raw.githubusercontent.com/jesusvc194-jpg/S2/refs/heads/main/New"))()
-	]])
+pcall(function()
 
-elseif syn and syn.queue_on_teleport then
+	if queue_on_teleport then
 
-	syn.queue_on_teleport([[
-		loadstring(game:HttpGet("https://raw.githubusercontent.com/jesusvc194-jpg/S2/refs/heads/main/New"))()
-	]])
-end
+		queue_on_teleport(LOADSTRING)
+
+	elseif syn and syn.queue_on_teleport then
+
+		syn.queue_on_teleport(LOADSTRING)
+	end
+end)
 
 repeat task.wait() until game:IsLoaded()
 
 local Players = game:GetService("Players")
 local TeleportService = game:GetService("TeleportService")
 local HttpService = game:GetService("HttpService")
+local StarterGui = game:GetService("StarterGui")
 
 local LocalPlayer = Players.LocalPlayer
 local PlaceID = game.PlaceId
@@ -62,6 +65,12 @@ pcall(function()
 	)
 end)
 
+local visitedCount = 0
+
+for _,_ in pairs(visitedServers) do
+	visitedCount += 1
+end
+
 --// GUI
 
 local gui = Instance.new("ScreenGui")
@@ -91,19 +100,19 @@ top.BackgroundTransparency = 1
 
 local title = Instance.new("TextLabel")
 title.Parent = top
-title.Size = UDim2.new(0,70,1,0)
+title.Size = UDim2.new(0,62,1,0)
 title.BackgroundTransparency = 1
-title.Text = "🔥 FINDER"
+title.Text = "🔥 GOD"
 title.TextColor3 = Color3.fromRGB(255,170,0)
 title.Font = Enum.Font.GothamBold
-title.TextSize = 15
+title.TextSize = 14
 
 -- NEXT
 
 local nextBtn = Instance.new("TextButton")
 nextBtn.Parent = top
-nextBtn.Size = UDim2.new(0,42,0,22)
-nextBtn.Position = UDim2.new(0,72,0.15,0)
+nextBtn.Size = UDim2.new(0,38,0,20)
+nextBtn.Position = UDim2.new(0,68,0.15,0)
 nextBtn.Text = "NEXT"
 nextBtn.BackgroundColor3 = Color3.fromRGB(0,170,255)
 nextBtn.TextColor3 = Color3.new(1,1,1)
@@ -118,8 +127,8 @@ local autoJoin = true
 
 local autoBtn = Instance.new("TextButton")
 autoBtn.Parent = top
-autoBtn.Size = UDim2.new(0,58,0,22)
-autoBtn.Position = UDim2.new(0,118,0.15,0)
+autoBtn.Size = UDim2.new(0,50,0,20)
+autoBtn.Position = UDim2.new(0,110,0.15,0)
 autoBtn.Text = "AUTO"
 autoBtn.BackgroundColor3 = Color3.fromRGB(0,255,120)
 autoBtn.TextColor3 = Color3.new(0,0,0)
@@ -132,8 +141,8 @@ Instance.new("UICorner",autoBtn).CornerRadius = UDim.new(0,6)
 
 local stopBtn = Instance.new("TextButton")
 stopBtn.Parent = top
-stopBtn.Size = UDim2.new(0,42,0,22)
-stopBtn.Position = UDim2.new(0,180,0.15,0)
+stopBtn.Size = UDim2.new(0,38,0,20)
+stopBtn.Position = UDim2.new(0,164,0.15,0)
 stopBtn.Text = "STOP"
 stopBtn.BackgroundColor3 = Color3.fromRGB(255,170,0)
 stopBtn.TextColor3 = Color3.new(0,0,0)
@@ -146,8 +155,8 @@ Instance.new("UICorner",stopBtn).CornerRadius = UDim.new(0,6)
 
 local minBtn = Instance.new("TextButton")
 minBtn.Parent = top
-minBtn.Size = UDim2.new(0,18,0,22)
-minBtn.Position = UDim2.new(1,-40,0.15,0)
+minBtn.Size = UDim2.new(0,16,0,20)
+minBtn.Position = UDim2.new(1,-36,0.15,0)
 minBtn.Text = "-"
 minBtn.BackgroundColor3 = Color3.fromRGB(180,180,180)
 minBtn.TextColor3 = Color3.new(0,0,0)
@@ -160,8 +169,8 @@ Instance.new("UICorner",minBtn).CornerRadius = UDim.new(0,6)
 
 local exitBtn = Instance.new("TextButton")
 exitBtn.Parent = top
-exitBtn.Size = UDim2.new(0,18,0,22)
-exitBtn.Position = UDim2.new(1,-20,0.15,0)
+exitBtn.Size = UDim2.new(0,16,0,20)
+exitBtn.Position = UDim2.new(1,-18,0.15,0)
 exitBtn.Text = "X"
 exitBtn.BackgroundColor3 = Color3.fromRGB(255,80,80)
 exitBtn.TextColor3 = Color3.new(1,1,1)
@@ -189,16 +198,29 @@ status.TextScaled = true
 
 local log = Instance.new("TextLabel")
 log.Parent = content
-log.Size = UDim2.new(1,-5,1,-30)
+log.Size = UDim2.new(1,-5,1,-45)
 log.Position = UDim2.new(0,2,0,28)
 log.BackgroundTransparency = 1
-log.Text = "Waiting..."
+log.Text =
+	"[SYSTEM]\nWaiting..."
 log.TextColor3 = Color3.fromRGB(255,170,0)
 log.Font = Enum.Font.Code
-log.TextSize = 14
+log.TextSize = 13
 log.TextWrapped = true
 log.TextXAlignment = Enum.TextXAlignment.Left
 log.TextYAlignment = Enum.TextYAlignment.Top
+
+local counter = Instance.new("TextLabel")
+counter.Parent = content
+counter.Size = UDim2.new(1,0,0,15)
+counter.Position = UDim2.new(0,0,1,-15)
+counter.BackgroundTransparency = 1
+counter.Text =
+	"Visited: "..visitedCount
+counter.TextColor3 = Color3.fromRGB(255,0,255)
+counter.Font = Enum.Font.Code
+counter.TextSize = 11
+counter.TextXAlignment = Enum.TextXAlignment.Left
 
 -- MINIMIZE
 
@@ -254,7 +276,7 @@ stopBtn.MouseButton1Click:Connect(function()
 	end
 end)
 
--- AUTO TOGGLE
+-- AUTO
 
 autoBtn.MouseButton1Click:Connect(function()
 
@@ -287,6 +309,9 @@ local function ServerHop()
 
 	local success,err = pcall(function()
 
+		log.Text =
+			"[SCAN]\nSearching Server..."
+
 		local req = game:HttpGet(
 			"https://games.roblox.com/v1/games/" ..
 			PlaceID ..
@@ -296,7 +321,7 @@ local function ServerHop()
 		local data = HttpService:JSONDecode(req)
 
 		if not data or not data.data then
-			error("Failed to get servers")
+			error("Failed To Get Servers")
 		end
 
 		for _,server in ipairs(data.data) do
@@ -315,8 +340,13 @@ local function ServerHop()
 					)
 				end)
 
+				visitedCount += 1
+
+				counter.Text =
+					"Visited: "..visitedCount
+
 				log.Text =
-					"🚀 Joining...\n\nPlayers: " ..
+					"[HOP]\nJoining New Server...\n\nPlayers: " ..
 					server.playing ..
 					"/" ..
 					server.maxPlayers
@@ -338,7 +368,8 @@ local function ServerHop()
 			end
 		end
 
-		log.Text = "⚠️ Resetting Servers..."
+		log.Text =
+			"[RESET]\nResetting Servers..."
 
 		table.clear(visitedServers)
 
@@ -354,7 +385,9 @@ local function ServerHop()
 
 	if not success then
 
-		log.Text = tostring(err)
+		log.Text =
+			"[ERROR]\n"..tostring(err)
+
 		status.Text = "❌ Hop Failed"
 
 	end
@@ -395,9 +428,12 @@ task.spawn(function()
 
 			pcall(function()
 
+				-- TEXTLABEL
+
 				if v:IsA("TextLabel") then
 
-					local text = string.lower(v.Text)
+					local text =
+						string.lower(v.Text)
 
 					if string.find(text,"secret") then
 
@@ -410,9 +446,12 @@ task.spawn(function()
 					end
 				end
 
+				-- STRINGVALUE
+
 				if v:IsA("StringValue") then
 
-					local value = string.lower(v.Value)
+					local value =
+						string.lower(v.Value)
 
 					if string.find(value,"secret") then
 
@@ -424,6 +463,8 @@ task.spawn(function()
 						end
 					end
 				end
+
+				-- ATTRIBUTES
 
 				if v:GetAttribute("Rarity") then
 
@@ -440,28 +481,50 @@ task.spawn(function()
 						AddFound(model.Name)
 					end
 				end
+
+				-- MODEL NAME
+
+				if v:IsA("Model") then
+
+					local lower =
+						string.lower(v.Name)
+
+					if string.find(lower,"secret") then
+						AddFound(v.Name)
+					end
+				end
 			end)
 		end
 
 		if #found > 0 then
 
 			log.Text =
-				"🔥 SECRET FOUND:\n\n" ..
+				"[FOUND]\n\n" ..
 				table.concat(found,"\n")
 
 			status.Text =
-				"✅ FOUND " .. #found
+				"🔥 SECRET FOUND"
+
+			pcall(function()
+
+				StarterGui:SetCore(
+					"SendNotification",
+					{
+						Title = "SECRET FOUND",
+						Text = table.concat(found,", "),
+						Duration = 6
+					}
+				)
+			end)
 
 			if autoJoin then
 				stopped = true
-			else
-				ServerHop()
 			end
 
 		else
 
 			log.Text =
-				"❌ No Secret Found"
+				"[SCAN]\nNo Secret Found"
 
 			status.Text = "🔍 Searching"
 
